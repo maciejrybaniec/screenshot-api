@@ -1,0 +1,23 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: PLAINTEXT://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9094
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+# bin/kafka-console-producer.sh --topic dashboard --bootstrap-server PLAINTEXT://127.0.0.1:9094
+# bin/kafka-console-consumer.sh --topic dashboard --from-beginning --bootstrap-server PLAINTEXT://127.0.0.1:9094
