@@ -1,18 +1,19 @@
 import threading
 import logging
+import json
 
 from kafka import KafkaConsumer
 
-from thumbnails.screenshot import capture_screenshot
-
 
 class KafkaListener():
-    def __init__(self, topic, group_id, advertised_listeners):
+    def __init__(self, topic, group_id, advertised_listeners, message_handler):
         self.consumer = KafkaConsumer(
             topic,
             group_id=group_id,
             bootstrap_servers=advertised_listeners
         )
+
+        self.message_handler = message_handler
 
         logging.info('initializing kafka listener')
 
@@ -25,6 +26,14 @@ class KafkaListener():
 
     def run(self):
         for msg in self.consumer:
-            print(msg.value)
-            capture_screenshot(
-                'https://www.lambdatest.com', "testing_form", "element.png")
+            try:
+                json_message = json.loads(msg.value)
+
+                self.message_handler(
+                    url=json_message['url'],
+                    html_element_id=json_message['html_element_id'],
+                    filename=json_message['output_file']
+                )
+
+            except Exception:
+                logging.error('cannot parse message')

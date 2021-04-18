@@ -1,4 +1,5 @@
 from health.routes import health_module
+from thumbnails.screenshot import capture_screenshot
 
 from containers import Container
 import health.routes
@@ -25,7 +26,8 @@ def create_app() -> Flask:
     container.kafka_listener(
         kafka_topic,
         confiuration_service.get('kafka_group_id'),
-        confiuration_service.get('kafka_advertised_listeners')
+        confiuration_service.get('kafka_advertised_listeners'),
+        capture_screenshot
     )
 
     app.register_blueprint(health_module)
